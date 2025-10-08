@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notes App</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f5f7fa;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+
+    .container {
+      background: white;
+      width: 90%;
+      max-width: 600px;
+      margin: 40px auto;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      padding: 20px 25px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    input, textarea {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 15px;
+    }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .notes {
+      display: grid;
+      gap: 15px;
+    }
+
+    .note {
+      background: #f9fafc;
+      border-left: 4px solid #007bff;
+      padding: 15px;
+      border-radius: 8px;
+      position: relative;
+    }
+
+    .note h3 {
+      margin: 0;
+      color: #222;
+    }
+
+    .note p {
+      margin: 10px 0 0;
+      color: #555;
+      white-space: pre-wrap;
+    }
+
+    .delete-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: none;
+      color: #d33;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .delete-btn:hover {
+      color: #a00;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📝 My Notes</h1>
+
+    <form id="noteForm">
+      <input type="text" id="title" placeholder="Note title..." required />
+      <textarea id="content" rows="4" placeholder="Write your note here..." required></textarea>
+      <button type="submit">Add Note</button>
+    </form>
+
+    <div class="notes" id="notesContainer"></div>
+  </div>
+
+  <script>
+    const noteForm = document.getElementById('noteForm');
+    const notesContainer = document.getElementById('notesContainer');
+    const titleInput = document.getElementById('title');
+    const contentInput = document.getElementById('content');
+
+    // Load notes from localStorage
+    function loadNotes() {
+      const notes = JSON.parse(localStorage.getItem('notes')) || [];
+      notesContainer.innerHTML = '';
+      notes.forEach((note, index) => {
+        const noteEl = document.createElement('div');
+        noteEl.classList.add('note');
+        noteEl.innerHTML = `
+          <button class="delete-btn" onclick="deleteNote(${index})">&times;</button>
+          <h3>${note.title}</h3>
+          <p>${note.content}</p>
+        `;
+        notesContainer.appendChild(noteEl);
+      });
+    }
+
+    // Save a new note
+    noteForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const title = titleInput.value.trim();
+      const content = contentInput.value.trim();
+
+      if (!title || !content) return;
+
+      const notes = JSON.parse(localStorage.getItem('notes')) || [];
+      notes.push({ title, content });
+      localStorage.setItem('notes', JSON.stringify(notes));
+
+      titleInput.value = '';
+      contentInput.value = '';
+      loadNotes();
+    });
+
+    // Delete note
+    function deleteNote(index) {
+      const notes = JSON.parse(localStorage.getItem('notes')) || [];
+      notes.splice(index, 1);
+      localStorage.setItem('notes', JSON.stringify(notes));
+      loadNotes();
+    }
+
+    // Make deleteNote globally accessible
+    window.deleteNote = deleteNote;
+
+    // Initial load
+    loadNotes();
+  </script>
+</body>
+</html>
